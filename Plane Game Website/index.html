@@ -7,25 +7,29 @@
     <title>Airline Manager Tycoon</title>
     <link rel="stylesheet" type="text/css" href="style.css">
     <script src="script.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <label for="" class="moneyDisplay">Money: $100</label>
-    <div class="content">
-        <div class="myPlanes page"></div>
-        <div class="buyPlanes page"></div>
-        <div class="myRoutes page"></div>
-        <div class="buyRoutes page"></div>
-    </div>
-
-    <div class="routeSetPopup">
-        <button class="cancel">Cancel</button><br><br   >
-        <div class="myRoutes2">H</div>
-    </div>
-    <div class="menu">
-        <button class="myAirplanes menuButton" onclick="page='myPlanes';updatePage()">My Airplanes</button>
-        <button class="buyAirplanes menuButton" onclick="page ='buyPlanes';updatePage()">Buy Airplanes</button>
-        <button class="myRoutes menuButton" onclick="page = 'myRoutes';updatePage()">My Routes</button>
-        <button class="buyRoutes menuButton" onclick="page = 'buyRoutes';updatePage()">Buy Routes</button>
+    <div class="container">
+        <header>
+            <label class="moneyDisplay">Money: $100</label>
+        </header>
+        <main class="content">
+            <div class="myPlanes page"></div>
+            <div class="buyPlanes page"></div>
+            <div class="myRoutes page"></div>
+            <div class="buyRoutes page"></div>
+        </main>
+        <div class="routeSetPopup">
+            <button class="cancel">Cancel</button><br><br>
+            <div class="myRoutes2">H</div>
+        </div>
+        <footer class="menu">
+            <button class="menuButton" onclick="page='myPlanes';updatePage()">My Airplanes</button>
+            <button class="menuButton" onclick="page='buyPlanes';updatePage()">Buy Airplanes</button>
+            <button class="menuButton" onclick="page='myRoutes';updatePage()">My Routes</button>
+            <button class="menuButton" onclick="page='buyRoutes';updatePage()">Buy Routes</button>
+        </footer>
     </div>
 </body>
 </html>
