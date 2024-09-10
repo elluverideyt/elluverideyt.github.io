@@ -20,7 +20,7 @@ var data = {
 
 
 class plane {
-    constructor(name,pax,fuelEfficiency,speed,range,cost) {
+    constructor(name, pax, fuelEfficiency, speed, range, cost) {
         this.name = name
         this.pax = pax
         this.fuelEfficiency = fuelEfficiency
