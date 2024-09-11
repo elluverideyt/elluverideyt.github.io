@@ -13,9 +13,9 @@ body, html {
     font-family: 'Roboto', sans-serif;
 }
 
-.giant-button {
-    width: 100%;
-    height: 100%;
+.plane-button {
+    width: 25%;
+    height: 25%;
     background-color: #1F1F1F; /* Dark grey background */
     color: #E0E0E0; /* Light grey text */
     border: none;
@@ -26,7 +26,26 @@ body, html {
     align-items: center;
 }
 
-.giant-button:hover {
+.plane-button:hover {
     background-color: #333333; /* Slightly lighter grey on hover */
     transform: scale(1.05);
 }
+
+.portfolio-button {
+    width: 25%;
+    height: 25%;
+    background-color: #1F1F1F; /* Dark grey background */
+    color: #E0E0E0; /* Light grey text */
+    border: none;
+    font-size: 3rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.portfolio-button:hover {
+    background-color: #333333; /* Slightly lighter grey on hover */
+    transform: scale(1.05);
+}
+
