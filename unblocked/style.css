@@ -214,3 +214,21 @@ html {
       transform: rotate(1turn);
     }
   }
+
+  .slope {
+    width: 25%;
+    height: 25%;
+    background-color: #1F1F1F; /* Dark grey background */
+    color: #E0E0E0; /* Light grey text */
+    border: none;
+    font-size: 3rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.slope:hover {
+    background-color: #333333; /* Slightly lighter grey on hover */
+    transform: scale(1.05);
+}

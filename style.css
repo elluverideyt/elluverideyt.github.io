@@ -49,7 +49,7 @@ body, html {
     transform: scale(1.05);
 }
 
-.unblocked {
+.unblocked-button {
     width: 25%;
     height: 25%;
     background-color: #1F1F1F; /* Dark grey background */
@@ -62,7 +62,7 @@ body, html {
     align-items: center;
 }
 
-.unblocked:hover {
+.unblocked-button:hover {
     background-color: #333333; /* Slightly lighter grey on hover */
     transform: scale(1.05);
 }
