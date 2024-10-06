@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATC Clearance Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <form>
+        <label for="callsign">Callsign:</label>
+        <input type="text" id="callsign" name="callsign">
+
+        <label for="arriving">Arriving:</label>
+        <input type="text" id="arriving" name="arriving">
+
+        <label for="altitude">Altitude:</label>
+        <input type="text" id="altitude" name="altitude">
+
+        <label for="runway">Runway:</label>
+        <input type="text" id="runway" name="runway">
+
+        <label for="via">Paste Route:</label>
+        <input type="text" id="via" name="via">
+
+        <label for="squawk">Squawk:</label>
+        <input type="text" id="squawk" name="squawk">
+
+        <button type="button" onclick="generateClearance()">Generate Clearance</button>
+    </form>
+
+    <div id="clearanceOutput"></div>
+
+    <script>
+        function generateClearance() {
+            const callsign = document.getElementById('callsign').value;
+            const arriving = document.getElementById('arriving').value;
+            const altitude = document.getElementById('altitude').value;
+            const via = document.getElementById('via').value;
+            const squawk = document.getElementById('squawk').value;
+
+            const initialAltitude = altitude / 2;
+
+            const clearance = `${callsign}, Cleared to the ${arriving} international airport VIA ${via}.<br>Climb Initial ${initialAltitude} 1 minute after departure,<br>${altitude} 2 minutes after departure.<br>Departure will be with me<br>Squawk: ${squawk}`;
+
+            document.getElementById('clearanceOutput').innerHTML = clearance;
+        }
+    </script>
+</body>
+</html>
