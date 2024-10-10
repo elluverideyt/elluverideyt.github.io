@@ -56,6 +56,27 @@ function distance(x1, y1, x2, y2) {
 }
 
 /**
+ * Calculates the angle between two points.
+ * @param {number} x1 - The x-coordinate of the first point.
+ * @param {number} y1 - The y-coordinate of the first point.
+ * @param {number} x2 - The x-coordinate of the second point.
+ * @param {number} y2 - The y-coordinate of the second point.
+ * @returns {number} The angle in degrees.
+ */
+function calculateAngle(x1, y1, x2, y2) {
+    return Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+}
+
+/**
+ * Redirects aircraft towards the airport.
+ */
+function redirectAircrafts() {
+    aircrafts.forEach(aircraft => {
+        aircraft.heading = calculateAngle(aircraft.x, aircraft.y, airport.x, airport.y);
+    });
+}
+
+/**
  * Checks for collisions between aircrafts.
  */
 function checkCollisions() {
@@ -119,6 +140,7 @@ function updateAircrafts() {
     });
     checkCollisions();
     checkLandings();
+    redirectAircrafts();
 }
 
 /**
@@ -143,7 +165,7 @@ function spawnAircraft() {
     const heading = Math.random() * 360; // Heading between 0 and 360 degrees
     aircrafts.push({ id, x, y, speed, heading });
     // Schedule the next aircraft spawn
-    const delay = Math.random() * (60000 - 15000) + 15000; // Random delay between 15-60 seconds
+    const delay = Math.random() * (10000 - 5000) + 5000; // Random delay between 5-10 seconds
     setTimeout(spawnAircraft, delay);
 }
 
