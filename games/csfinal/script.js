@@ -9,6 +9,7 @@ const aircrafts = [
 ];
 
 const airport = { x: 300, y: 300, radius: 50 }; // Define the airport area
+const allowedHeadings = [80, 260]; // Define the allowed headings for the runway
 let score = 0;
 
 /**
@@ -68,12 +69,16 @@ function calculateAngle(x1, y1, x2, y2) {
 }
 
 /**
- * Redirects aircraft towards the airport.
+ * Redirects the selected aircraft towards the clicked position.
+ * @param {number} x - The x-coordinate of the click.
+ * @param {number} y - The y-coordinate of the click.
  */
-function redirectAircrafts() {
-    aircrafts.forEach(aircraft => {
-        aircraft.heading = calculateAngle(aircraft.x, aircraft.y, airport.x, airport.y);
-    });
+function redirectAircraft(x, y) {
+    if (aircrafts.length > 0) {
+        // Select the first aircraft for simplicity
+        const aircraft = aircrafts[0];
+        aircraft.heading = calculateAngle(aircraft.x, aircraft.y, x, y);
+    }
 }
 
 /**
@@ -100,7 +105,7 @@ function checkLandings() {
     for (let i = aircrafts.length - 1; i >= 0; i--) {
         const aircraft = aircrafts[i];
         const dist = distance(aircraft.x, aircraft.y, airport.x, airport.y);
-        if (dist < airport.radius) {
+        if (dist < airport.radius && allowedHeadings.includes(Math.round(aircraft.heading))) {
             console.log(`Aircraft ${aircraft.id} landed`);
             score++;
             aircrafts.splice(i, 1); // Remove the landed aircraft
@@ -140,7 +145,6 @@ function updateAircrafts() {
     });
     checkCollisions();
     checkLandings();
-    redirectAircrafts();
 }
 
 /**
@@ -185,3 +189,13 @@ function mainLoop() {
 
 // Start the main loop
 mainLoop();
+
+/**
+ * Event listener for mouse clicks to redirect aircraft.
+ */
+canvas.addEventListener('click', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    redirectAircraft(x, y);
+});
