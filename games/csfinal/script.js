@@ -153,11 +153,12 @@ spawnAircraft();
 /**
  * Main loop to update and draw the radar and aircrafts.
  */
+const frameRate = 0.5; // Define the frame rate (30 frames per second)
 function mainLoop() {
     drawRadar();
     updateAircrafts();
     drawAircrafts();
-    requestAnimationFrame(mainLoop);
+    setTimeout(mainLoop, 1000 / frameRate); // Control the frame rate
 }
 
 // Start the main loop
