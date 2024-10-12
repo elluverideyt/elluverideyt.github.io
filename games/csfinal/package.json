@@ -1,0 +1,58 @@
+{
+  "private": true,
+  "name": "atc-manager",
+  "version": "1.5.1",
+  "license": "MIT",
+  "sideEffects": false,
+  "scripts": {
+    "start": "if-env NODE_ENV=production && npm run serve || npm run dev",
+    "build": "set NODE_ENV=production && preact build -p --json --clean --template template.html",
+    "serve": "npm run build && preact serve",
+    "dev": "preact watch --template template.html",
+    "lint": "eslint src",
+    "cloc": "cloc components schema stores lib components assets template.html style.css index.js",
+    "deploy": "npm run build && git add . && git commit -m \"prod\" && git subtree push --prefix build origin gh-pages"
+  },
+  "browserslist": [
+    "> 1%",
+    "IE >= 9",
+    "last 2 versions"
+  ],
+  "eslintConfig": {
+    "extends": "eslint-config-synacor"
+  },
+  "eslintIgnore": [
+    "build/*"
+  ],
+  "devDependencies": {
+    "babel-plugin-recharts": "^2.0.0",
+    "eslint": "^8.2.0",
+    "eslint-config-synacor": "^3.0.5",
+    "eslint-plugin-react": "^7.27.1",
+    "html-webpack-plugin": "^5.5.0",
+    "if-env": "^1.0.4",
+    "preact-cli": "^3.3.2",
+    "preact-cli-plugin-env-vars": "^1.2.1",
+    "preact-cli-plugin-fast-async": "^1.0.1",
+    "preact-cli-sw-precache": "^1.0.3"
+  },
+  "dependencies": {
+    "file-saver": "^2.0.5",
+    "firebase": "^8.10.0",
+    "github-buttons": "git+https://git@github.com/ntkme/github-buttons.git",
+    "history": "^5.1.0",
+    "jsondiffpatch": "^0.4.1",
+    "lz-string": "^1.4.4",
+    "preact": "^10.5.15",
+    "preact-compat": "^3.19.0",
+    "preact-router": "^3.2.1",
+    "react-copy-to-clipboard": "^5.0.4",
+    "react-firebase-hooks": "^4.0.1",
+    "react-fullscreenable": "^2.5.1-0",
+    "react-github-button": "^0.1.11",
+    "react-icons": "^4.3.1",
+    "react-jsonschema-form": "^1.8.1",
+    "recharts": "^2.1.6",
+    "timeago.js": "^4.0.2"
+  }
+}
