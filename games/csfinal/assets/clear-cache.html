@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Clearing Caches...</title>
+</head>
+
+<body>
+  <script>
+    if (window.caches) {
+      caches.keys().then(function (keys) {
+        var atcManager2Caches = keys.filter(function (key) {
+          return key.includes('atc-manager-2');
+        });
+        var cachePromises = atcManager2Caches.map(function (key) {
+          return caches.delete(key);
+        });
+        Promise.all(cachePromises).then(function () {
+          alert('Caches have been cleared');
+          window.history.back();
+        });
+      });
+    }
+  </script>
+</body>
+
+</html>
