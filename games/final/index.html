@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        #qrCanvas {
+            border: 1px solid #000;
+            margin-bottom: 20px;
+        }
+        #explanation {
+            max-width: 600px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>QR Code Generator</h1>
+    <canvas id="qrCanvas" width="256" height="256"></canvas>
+    <div id="explanation">Generating QR code...</div>
+
+    <script>
+        const canvas = document.getElementById('qrCanvas');
+        const ctx = canvas.getContext('2d');
+        const explanation = document.getElementById('explanation');
+        const qrData = [
+            // Example QR code data (21x21 matrix for simplicity)
+            [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+            [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+            // ... (fill in the rest of the QR code data)
+        ];
+
+        const cellSize = canvas.width / qrData.length;
+
+        function drawBit(x, y, bit) {
+            ctx.fillStyle = bit ? '#000' : '#fff';
+            ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+        }
+
+        function generateQRCode() {
+            let x = 0, y = 0;
+            const interval = setInterval(() => {
+                if (y >= qrData.length) {
+                    clearInterval(interval);
+                    explanation.textContent = 'QR code generation complete!';
+                    return;
+                }
+                drawBit(x, y, qrData[y][x]);
+                explanation.textContent = `Generating QR code... (${y * qrData.length + x + 1}/${qrData.length * qrData.length} bits)`;
+                x++;
+                if (x >= qrData[y].length) {
+                    x = 0;
+                    y++;
+                }
+            }, 100); // Adjust the interval for speed
+        }
+
+        generateQRCode();
+    </script>
+</body>
+</html>
