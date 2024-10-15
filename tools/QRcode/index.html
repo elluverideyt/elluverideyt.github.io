@@ -72,6 +72,15 @@
             generateQRCode(link, version);
         });
 
+        versionSelect.addEventListener('change', function() {
+            const link = linkInput.value;
+            const version = parseInt(versionSelect.value);
+            if (link) {
+                qrCanvas.width = qrCanvas.width; // Clear previous QR code
+                generateQRCode(link, version);
+            }
+        });
+
         function generateQRCode(text, version) {
             const qr = new QRCode(document.createElement('div'), {
                 text: text,
@@ -79,108 +88,16 @@
                 height: 256,
                 version: version
             });
-
             setTimeout(() => {
                 const qrData = qr._oQRCode.modules;
                 const tileSize = qrCanvas.width / qrData.length;
-
-                // Define the coordinates in the order you want to generate the QR code
-                const coordinates = generateCoordinates(qrData.length, version);
-
-                let index = 0;
-
-                function drawNextTile() {
-                    if (index < coordinates.length) {
-                        const { x, y } = coordinates[index];
-                        ctx.fillStyle = qrData[y][x] ? '#000' : '#fff';
-                        ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
-                        index++;
-                        requestAnimationFrame(drawNextTile);
-                    } else {
-                        explanation.textContent = 'QR code generation complete!';
+                for (let row = 0; row < qrData.length; row++) {
+                    for (let col = 0; col < qrData.length; col++) {
+                        ctx.fillStyle = qrData[row][col] ? '#000' : '#fff';
+                        ctx.fillRect(col * tileSize, row * tileSize, tileSize, tileSize);
                     }
                 }
-
-                drawNextTile();
             }, 0);
-        }
-
-        function generateCoordinates(size, version) {
-            const coordinates = [];
-            if (version === 1) {
-                // Row by row
-                for (let row = 0; row < size; row++) {
-                    for (let col = 0; col < size; col++) {
-                        coordinates.push({ x: col, y: row });
-                    }
-                }
-            } else if (version === 2) {
-                // Column by column
-                for (let col = 0; col < size; col++) {
-                    for (let row = 0; row < size; row++) {
-                        coordinates.push({ x: col, y: row });
-                    }
-                }
-            } else if (version === 3) {
-                // Spiral pattern
-                let x = 0, y = 0, dx = 0, dy = -1;
-                for (let i = 0; i < size * size; i++) {
-                    if ((-size / 2 < x && x <= size / 2) && (-size / 2 < y && y <= size / 2)) {
-                        coordinates.push({ x: x + Math.floor(size / 2), y: y + Math.floor(size / 2) });
-                    }
-                    if (x === y || (x < 0 && x === -y) || (x > 0 && x === 1 - y)) {
-                        [dx, dy] = [-dy, dx];
-                    }
-                    x += dx;
-                    y += dy;
-                }
-            } else if (version === 5) {
-                // Diagonal pattern
-                for (let i = 0; i < size; i++) {
-                    for (let j = 0; j < size; j++) {
-                        if ((i + j) % 2 === 0) {
-                            coordinates.push({ x: j, y: i });
-                        }
-                    }
-                }
-            } else if (version === 10) {
-                // Default to row by row
-                for (let row = 0; row < size; row++) {
-                    for (let col = 0; col < size; col++) {
-                        coordinates.push({ x: col, y: row });
-                    }
-                }
-            } else if (version === 20) {
-                // Default to column by column
-                for (let col = 0; col < size; col++) {
-                    for (let row = 0; row < size; row++) {
-                        coordinates.push({ x: col, y: row });
-                    }
-                }
-            } else if (version === 30) {
-                // Default to spiral pattern
-                let x = 0, y = 0, dx = 0, dy = -1;
-                for (let i = 0; i < size * size; i++) {
-                    if ((-size / 2 < x && x <= size / 2) && (-size / 2 < y && y <= size / 2)) {
-                        coordinates.push({ x: x + Math.floor(size / 2), y: y + Math.floor(size / 2) });
-                    }
-                    if (x === y || (x < 0 && x === -y) || (x > 0 && x === 1 - y)) {
-                        [dx, dy] = [-dy, dx];
-                    }
-                    x += dx;
-                    y += dy;
-                }
-            } else if (version === 40) {
-                // Default to diagonal pattern
-                for (let i = 0; i < size; i++) {
-                    for (let j = 0; j < size; j++) {
-                        if ((i + j) % 2 === 0) {
-                            coordinates.push({ x: j, y: i });
-                        }
-                    }
-                }
-            }
-            return coordinates;
         }
     </script>
 </body>
