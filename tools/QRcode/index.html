@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        #qrCanvas {
+            border: 1px solid #000;
+            margin-bottom: 20px;
+        }
+        #explanation {
+            max-width: 600px;
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input, button, select {
+            margin: 5px;
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+</head>
+<body>
+    <h1>QR Code Generator</h1>
+    <form id="qrForm">
+        <input type="text" id="linkInput" placeholder="Enter a link" required>
+        <select id="versionSelect">
+            <option value="" disabled selected>With every version, it takes longer to generate</option>
+            <option value="1">Version 1 (21x21)</option>
+            <option value="2">Version 2 (Recommended) (25x25)</option>
+            <option value="3">Version 3 (29x29)</option>
+            <option value="5">Version 5 (37x37)</option>
+            <option value="10">Version 10 (57x57)</option>
+            <option value="20">Version 20 (97x97)</option>
+            <option value="30">Version 30 (Long Links) (137x137)</option>
+            <option value="40">Version 40 (Japanese Kanji) (177x177)</option>
+            <!-- Add more versions as needed -->
+        </select>
+        <button type="submit">Generate QR Code</button>
+    </form>
+    <canvas id="qrCanvas" width="256" height="256"></canvas>
+    <div id="explanation">Enter a link and click "Generate QR Code"</div>
+
+    <script>
+        const form = document.getElementById('qrForm');
+        const linkInput = document.getElementById('linkInput');
+        const versionSelect = document.getElementById('versionSelect');
+        const qrCanvas = document.getElementById('qrCanvas');
+        const ctx = qrCanvas.getContext('2d');
+        const explanation = document.getElementById('explanation');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const link = linkInput.value;
+            const version = parseInt(versionSelect.value);
+            qrCanvas.width = qrCanvas.width; // Clear previous QR code
+            generateQRCode(link, version);
+        });
+
+        function generateQRCode(text, version) {
+            const qr = new QRCode(document.createElement('div'), {
+                text: text,
+                width: 256,
+                height: 256,
+                version: version
+            });
+
+            setTimeout(() => {
+                const qrData = qr._oQRCode.modules;
+                const tileSize = qrCanvas.width / qrData.length;
+
+                // Define the coordinates in the order you want to generate the QR code
+                const coordinates = generateCoordinates(qrData.length, version);
+
+                let index = 0;
+
+                function drawNextTile() {
+                    if (index < coordinates.length) {
+                        const { x, y } = coordinates[index];
+                        ctx.fillStyle = qrData[y][x] ? '#000' : '#fff';
+                        ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                        index++;
+                        requestAnimationFrame(drawNextTile);
+                    } else {
+                        explanation.textContent = 'QR code generation complete!';
+                    }
+                }
+
+                drawNextTile();
+            }, 0);
+        }
+
+        function generateCoordinates(size, version) {
+            const coordinates = [];
+            if (version === 1) {
+                // Row by row
+                for (let row = 0; row < size; row++) {
+                    for (let col = 0; col < size; col++) {
+                        coordinates.push({ x: col, y: row });
+                    }
+                }
+            } else if (version === 2) {
+                // Column by column
+                for (let col = 0; col < size; col++) {
+                    for (let row = 0; row < size; row++) {
+                        coordinates.push({ x: col, y: row });
+                    }
+                }
+            } else if (version === 3) {
+                // Spiral pattern
+                let x = 0, y = 0, dx = 0, dy = -1;
+                for (let i = 0; i < size * size; i++) {
+                    if ((-size / 2 < x && x <= size / 2) && (-size / 2 < y && y <= size / 2)) {
+                        coordinates.push({ x: x + Math.floor(size / 2), y: y + Math.floor(size / 2) });
+                    }
+                    if (x === y || (x < 0 && x === -y) || (x > 0 && x === 1 - y)) {
+                        [dx, dy] = [-dy, dx];
+                    }
+                    x += dx;
+                    y += dy;
+                }
+            } else if (version === 5) {
+                // Diagonal pattern
+                for (let i = 0; i < size; i++) {
+                    for (let j = 0; j < size; j++) {
+                        if ((i + j) % 2 === 0) {
+                            coordinates.push({ x: j, y: i });
+                        }
+                    }
+                }
+            } else if (version === 10) {
+                // Default to row by row
+                for (let row = 0; row < size; row++) {
+                    for (let col = 0; col < size; col++) {
+                        coordinates.push({ x: col, y: row });
+                    }
+                }
+            } else if (version === 20) {
+                // Default to column by column
+                for (let col = 0; col < size; col++) {
+                    for (let row = 0; row < size; row++) {
+                        coordinates.push({ x: col, y: row });
+                    }
+                }
+            } else if (version === 30) {
+                // Default to spiral pattern
+                let x = 0, y = 0, dx = 0, dy = -1;
+                for (let i = 0; i < size * size; i++) {
+                    if ((-size / 2 < x && x <= size / 2) && (-size / 2 < y && y <= size / 2)) {
+                        coordinates.push({ x: x + Math.floor(size / 2), y: y + Math.floor(size / 2) });
+                    }
+                    if (x === y || (x < 0 && x === -y) || (x > 0 && x === 1 - y)) {
+                        [dx, dy] = [-dy, dx];
+                    }
+                    x += dx;
+                    y += dy;
+                }
+            } else if (version === 40) {
+                // Default to diagonal pattern
+                for (let i = 0; i < size; i++) {
+                    for (let j = 0; j < size; j++) {
+                        if ((i + j) % 2 === 0) {
+                            coordinates.push({ x: j, y: i });
+                        }
+                    }
+                }
+            }
+            return coordinates;
+        }
+    </script>
+</body>
+</html>
