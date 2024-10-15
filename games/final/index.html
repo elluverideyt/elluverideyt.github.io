@@ -22,50 +22,74 @@
             max-width: 600px;
             text-align: center;
         }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input, button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 16px;
+        }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 </head>
 <body>
     <h1>QR Code Generator</h1>
+    <form id="qrForm">
+        <input type="text" id="linkInput" placeholder="Enter a link" required>
+        <button type="submit">Generate QR Code</button>
+    </form>
     <canvas id="qrCanvas" width="256" height="256"></canvas>
-    <div id="explanation">Generating QR code...</div>
+    <div id="explanation">Enter a link and click "Generate QR Code"</div>
 
     <script>
-        const canvas = document.getElementById('qrCanvas');
-        const ctx = canvas.getContext('2d');
+        const form = document.getElementById('qrForm');
+        const linkInput = document.getElementById('linkInput');
+        const qrCanvas = document.getElementById('qrCanvas');
+        const ctx = qrCanvas.getContext('2d');
         const explanation = document.getElementById('explanation');
-        const qrData = [
-            // Example QR code data (21x21 matrix for simplicity)
-            [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
-            [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
-            // ... (fill in the rest of the QR code data)
-        ];
 
-        const cellSize = canvas.width / qrData.length;
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const link = linkInput.value;
+            qrCanvas.width = qrCanvas.width; // Clear previous QR code
+            generateQRCode(link);
+        });
 
-        function drawBit(x, y, bit) {
-            ctx.fillStyle = bit ? '#000' : '#fff';
-            ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-        }
+        function generateQRCode(text) {
+            const qr = new QRCode(document.createElement('div'), {
+                text: text,
+                width: 256,
+                height: 256
+            });
 
-        function generateQRCode() {
-            let x = 0, y = 0;
-            const interval = setInterval(() => {
-                if (y >= qrData.length) {
-                    clearInterval(interval);
-                    explanation.textContent = 'QR code generation complete!';
-                    return;
+            setTimeout(() => {
+                const qrData = qr._oQRCode.modules;
+                const tileSize = qrCanvas.width / qrData.length;
+                let row = 0;
+                let col = 0;
+
+                function drawNextTile() {
+                    if (row < qrData.length) {
+                        if (col < qrData.length) {
+                            ctx.fillStyle = qrData[row][col] ? '#000' : '#fff';
+                            ctx.fillRect(col * tileSize, row * tileSize, tileSize, tileSize);
+                            col++;
+                        } else {
+                            col = 0;
+                            row++;
+                        }
+                        requestAnimationFrame(drawNextTile);
+                    } else {
+                        explanation.textContent = 'QR code generation complete!';
+                    }
                 }
-                drawBit(x, y, qrData[y][x]);
-                explanation.textContent = `Generating QR code... (${y * qrData.length + x + 1}/${qrData.length * qrData.length} bits)`;
-                x++;
-                if (x >= qrData[y].length) {
-                    x = 0;
-                    y++;
-                }
-            }, 100); // Adjust the interval for speed
-        }
 
-        generateQRCode();
+                drawNextTile();
+            }, 0);
+        }
     </script>
 </body>
 </html>
