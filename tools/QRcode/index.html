@@ -43,7 +43,7 @@
         <input type="text" id="linkInput" placeholder="Enter a link" required>
         <select id="versionSelect">
             <option value="" disabled selected>Select QR Code Version</option>
-            <option value="1">Version 1 (21x21)</option>
+            <option value="1">Version 1 (20x20)</option>
             <option value="2">Version 2 (25x25)</option>
             <option value="3">Version 3 (29x29)</option>
             <option value="5">Version 5 (37x37)</option>
@@ -54,7 +54,7 @@
         </select>
         <button type="submit">Generate QR Code</button>
     </form>
-    <canvas id="qrCanvas" width="800" height="800"></canvas>
+    <canvas id="qrCanvas" width="256" height="256"></canvas>
     <div id="explanation">Enter a link and click "Generate QR Code"</div>
 
     <script>
@@ -65,7 +65,78 @@
         const ctx = qrCanvas.getContext('2d');
         const explanation = document.getElementById('explanation');
 
-        const coordinates = generateCoordinatesUntilY13();
+        function generateSpiralCoordinates(startRow, startCol, endRow, endCol) {
+            const coordinates = [];
+            let top = startRow, bottom = endRow, left = startCol, right = endCol;
+            while (top <= bottom && left <= right) {
+                for (let i = left; i <= right; i++) coordinates.push([top, i]);
+                top++;
+                for (let i = top; i <= bottom; i++) coordinates.push([i, right]);
+                right--;
+                if (top <= bottom) {
+                    for (let i = right; i >= left; i--) coordinates.push([bottom, i]);
+                    bottom--;
+                }
+                if (left <= right) {
+                    for (let i = bottom; i >= top; i--) coordinates.push([i, left]);
+                    left++;
+                }
+            }
+            return coordinates;
+        }
+
+        function generateLineCoordinates(startRow, startCol, endRow, endCol) {
+            const coordinates = [];
+            if (startRow === endRow) {
+                for (let col = startCol; col <= endCol; col++) {
+                    coordinates.push([startRow, col]);
+                }
+            } else if (startCol === endCol) {
+                for (let row = startRow; row <= endRow; row++) {
+                    coordinates.push([row, startCol]);
+                }
+            }
+            return coordinates;
+        }
+
+        function generateDiagonalCoordinates(startRow, startCol, endRow, endCol) {
+            const coordinates = [];
+            let row = startRow, col = startCol;
+            while (row <= endRow && col <= endCol) {
+                coordinates.push([row, col]);
+                row++;
+                col++;
+            }
+            return coordinates;
+        }
+
+        function generateRemainingCoordinates(startRow, startCol, endRow, endCol, existingCoordinates) {
+            const coordinates = [];
+            const existingSet = new Set(existingCoordinates.map(coord => coord.toString()));
+            let row = startRow, col = startCol;
+            while (row <= endRow && col <= endCol) {
+                if (!existingSet.has([row, col].toString())) {
+                    coordinates.push([row, col]);
+                }
+                row++;
+                col++;
+            }
+            return coordinates;
+        }
+
+        const coordinates = {
+            1: [
+                ...generateSpiralCoordinates(0, 0, 6, 6),
+                ...generateSpiralCoordinates(0, 14, 6, 20),
+                ...generateSpiralCoordinates(14, 0, 20, 6),
+                ...generateLineCoordinates(6, 7, 6, 20),
+                ...generateLineCoordinates(7, 6, 20, 6),
+                ...generatelineCoordinates(20, 20, 19, 20),
+                ...generateDiagonalCoordinates(19, 20, 20, 19),
+            ],
+            2: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 2]], // Example coordinates for version 2
+            // Add coordinates for other versions as needed
+        };
 
         form.addEventListener('submit', function (event) {
             event.preventDefault();
@@ -78,48 +149,31 @@
                 return;
             }
 
-            ctx.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
-
-            coordinates.forEach((coord, index) => {
-                if (index + 1 <= version) {
-                    generateQRCode(link, index + 1, coord.x, coord.y);
-                }
-            });
-
-            explanation.textContent = 'QR Codes generated successfully!';
-        });
-
-        function generateQRCode(data, version, offsetX, offsetY) {
             const qr = qrcode(version, 'L');
-            qr.addData(data);
+            qr.addData(link);
             qr.make();
 
-            const tileSize = qrCanvas.width / 8 / qr.getModuleCount();
+            const tileSize = qrCanvas.width / qr.getModuleCount();
+            ctx.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
 
-            for (let row = 0; row < qr.getModuleCount(); row++) {
-                for (let col = 0; col < qr.getModuleCount(); col++) {
+            const versionCoordinates = coordinates[version];
+            let index = 0;
+
+            function drawPixel() {
+                if (index < versionCoordinates.length) {
+                    const [row, col] = versionCoordinates[index];
                     ctx.fillStyle = qr.isDark(row, col) ? '#000000' : '#ffffff';
-                    ctx.fillRect(offsetX + col * tileSize, offsetY + row * tileSize, tileSize, tileSize);
+                    ctx.fillRect(col * tileSize, row * tileSize, tileSize, tileSize);
+
+                    index++;
+                    setTimeout(drawPixel, 10); // Adjust the delay as needed
+                } else {
+                    explanation.textContent = 'QR Code generated successfully!';
                 }
             }
-        }
 
-        function generateCoordinatesUntilY13() {
-            const coords = [];
-            for (let y = 20; y >= 13; y--) {
-                coords.push(...generateLineCoordinates(20, y, 19, y));
-                coords.push(...generateDiagonalCoordinates(19, y, 20, y - 1));
-            }
-            return coords;
-        }
-
-        function generateLineCoordinates(x1, y1, x2, y2) {
-            return [{ x: x1, y: y1 }, { x: x2, y: y2 }];
-        }
-
-        function generateDiagonalCoordinates(x1, y1, x2, y2) {
-            return [{ x: x1, y: y1 }, { x: x2, y: y2 }];
-        }
+            drawPixel();
+        });
     </script>
 </body>
 </html>
