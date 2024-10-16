@@ -43,13 +43,14 @@
         <input type="text" id="linkInput" placeholder="Enter a link" required>
         <button type="submit">Generate QR Codes</button>
     </form>
-    <div id="qrCodesContainer"></div>
+    <canvas id="qrCanvas" width="256" height="256"></canvas>
     <div id="explanation">Enter a link and click "Generate QR Codes"</div>
 
     <script>
         const form = document.getElementById('qrForm');
         const linkInput = document.getElementById('linkInput');
-        const qrCodesContainer = document.getElementById('qrCodesContainer');
+        const qrCanvas = document.getElementById('qrCanvas');
+        const ctx = qrCanvas.getContext('2d');
         const explanation = document.getElementById('explanation');
 
         form.addEventListener('submit', function (event) {
@@ -62,21 +63,22 @@
                 return;
             }
 
-            qrCodesContainer.innerHTML = ''; // Clear previous QR codes
-
             const versions = [1, 2, 3, 5, 10, 20, 30, 40];
+            let currentVersionIndex = 0;
 
-            versions.forEach(version => {
+            function animateQRCodeGeneration() {
+                if (currentVersionIndex >= versions.length) {
+                    explanation.textContent = 'QR Codes generated successfully!';
+                    return;
+                }
+
+                const version = versions[currentVersionIndex];
                 const qr = qrcode(version, 'L');
                 qr.addData(link);
                 qr.make();
 
-                const canvas = document.createElement('canvas');
-                canvas.className = 'qrCanvas';
-                canvas.width = 256;
-                canvas.height = 256;
-                const ctx = canvas.getContext('2d');
-                const tileSize = canvas.width / qr.getModuleCount();
+                const tileSize = qrCanvas.width / qr.getModuleCount();
+                ctx.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
 
                 for (let row = 0; row < qr.getModuleCount(); row++) {
                     for (let col = 0; col < qr.getModuleCount(); col++) {
@@ -85,10 +87,11 @@
                     }
                 }
 
-                qrCodesContainer.appendChild(canvas);
-            });
+                currentVersionIndex++;
+                setTimeout(animateQRCodeGeneration, 1000); // Delay between each version
+            }
 
-            explanation.textContent = 'QR Codes generated successfully!';
+            animateQRCodeGeneration();
         });
     </script>
 </body>
