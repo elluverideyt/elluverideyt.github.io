@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="""en">
+<html lang="en">
 <head>
-    <meta charset="""UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Generator</title>
     <style>
@@ -14,23 +14,19 @@
             height: 100vh;
             background-color: #f0f0f0;
         }
-
-        #qrCanvas {
+        .qrCanvas {
             border: 1px solid #000;
             margin-bottom: 20px;
         }
-
         #explanation {
             max-width: 600px;
             text-align: center;
         }
-
         form {
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-
         input,
         button,
         select {
@@ -45,56 +41,54 @@
     <h1>QR Code Generator</h1>
     <form id="qrForm">
         <input type="text" id="linkInput" placeholder="Enter a link" required>
-        <select id="versionSelect">
-            <option value="" disabled selected>Select QR Code Version</option>
-            <option value="1">Version 1 (21x21)</option>
-            <option value="2">Version 2 (25x25)</option>
-            <option value="3">Version 3 (29x29)</option>
-            <option value="5">Version 5 (37x37)</option>
-            <option value="10">Version 10 (57x57)</option>
-            <option value="20">Version 20 (97x97)</option>
-            <option value="30">Version 30 (137x137)</option>
-            <option value="40">Version 40 (177x177)</option>
-        </select>
-        <button type="submit">Generate QR Code</button>
+        <button type="submit">Generate QR Codes</button>
     </form>
-    <canvas id="qrCanvas" width="256" height="256"></canvas>
-    <div id="explanation">Enter a link and click "Generate QR Code"</div>
+    <div id="qrCodesContainer"></div>
+    <div id="explanation">Enter a link and click "Generate QR Codes"</div>
 
     <script>
         const form = document.getElementById('qrForm');
         const linkInput = document.getElementById('linkInput');
-        const versionSelect = document.getElementById('versionSelect');
-        const qrCanvas = document.getElementById('qrCanvas');
-        const ctx = qrCanvas.getContext('2d');
+        const qrCodesContainer = document.getElementById('qrCodesContainer');
         const explanation = document.getElementById('explanation');
 
         form.addEventListener('submit', function (event) {
             event.preventDefault();
 
             const link = linkInput.value;
-            const version = parseInt(versionSelect.value);
 
-            if (!link || isNaN(version)) {
-                explanation.textContent = 'Please enter a valid link and select a QR code version.';
+            if (!link) {
+                explanation.textContent = 'Please enter a valid link.';
                 return;
             }
 
-            const qr = qrcode(version, 'L');
-            qr.addData(link);
-            qr.make();
+            qrCodesContainer.innerHTML = ''; // Clear previous QR codes
 
-            const tileSize = qrCanvas.width / qr.getModuleCount();
-            ctx.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
+            const versions = [1, 2, 3, 5, 10, 20, 30, 40];
 
-            for (let row = 0; row < qr.getModuleCount(); row++) {
-                for (let col = 0; col < qr.getModuleCount(); col++) {
-                    ctx.fillStyle = qr.isDark(row, col) ? '#000000' : '#ffffff';
-                    ctx.fillRect(col * tileSize, row * tileSize, tileSize, tileSize);
+            versions.forEach(version => {
+                const qr = qrcode(version, 'L');
+                qr.addData(link);
+                qr.make();
+
+                const canvas = document.createElement('canvas');
+                canvas.className = 'qrCanvas';
+                canvas.width = 256;
+                canvas.height = 256;
+                const ctx = canvas.getContext('2d');
+                const tileSize = canvas.width / qr.getModuleCount();
+
+                for (let row = 0; row < qr.getModuleCount(); row++) {
+                    for (let col = 0; col < qr.getModuleCount(); col++) {
+                        ctx.fillStyle = qr.isDark(row, col) ? '#000000' : '#ffffff';
+                        ctx.fillRect(col * tileSize, row * tileSize, tileSize, tileSize);
+                    }
                 }
-            }
 
-            explanation.textContent = 'QR Code generated successfully!';
+                qrCodesContainer.appendChild(canvas);
+            });
+
+            explanation.textContent = 'QR Codes generated successfully!';
         });
     </script>
 </body>
