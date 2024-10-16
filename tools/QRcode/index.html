@@ -48,16 +48,15 @@
     <form id="qrForm">
         <input type="text" id="linkInput" placeholder="Enter a link" required>
         <select id="versionSelect">
-            <option value="" disabled selected>With every version, it takes longer to generate</option>
+            <option value="" disabled selected>Select QR Code Version</option>
             <option value="1">Version 1 (21x21)</option>
-            <option value="2">Version 2 (Recommended) (25x25)</option>
+            <option value="2">Version 2 (25x25)</option>
             <option value="3">Version 3 (29x29)</option>
             <option value="5">Version 5 (37x37)</option>
             <option value="10">Version 10 (57x57)</option>
             <option value="20">Version 20 (97x97)</option>
-            <option value="30">Version 30 (Long Links) (137x137)</option>
-            <option value="40">Version 40 (Japanese Kanji) (177x177)</option>
-            <!-- Add more versions as needed -->
+            <option value="30">Version 30 (137x137)</option>
+            <option value="40">Version 40 (177x177)</option>
         </select>
         <button type="submit">Generate QR Code</button>
     </form>
@@ -76,17 +75,12 @@
             event.preventDefault();
             const link = linkInput.value;
             const version = parseInt(versionSelect.value);
+            if (!version) {
+                explanation.textContent = 'Please select a QR code version.';
+                return;
+            }
             qrCanvas.width = qrCanvas.width; // Clear previous QR code
             generateQRCode(link, version);
-        });
-
-        versionSelect.addEventListener('change', function () {
-            const link = linkInput.value;
-            const version = parseInt(versionSelect.value);
-            if (link) {
-                qrCanvas.width = qrCanvas.width; // Clear previous QR code
-                generateQRCode(link, version);
-            }
         });
 
         function generateQRCode(text, version) {
@@ -96,6 +90,7 @@
                 height: 256,
                 version: version
             });
+
             setTimeout(() => {
                 const qrData = qr._oQRCode.modules;
                 const tileSize = qrCanvas.width / qrData.length;
