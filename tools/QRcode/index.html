@@ -80,6 +80,7 @@
                 return;
             }
             qrCanvas.width = qrCanvas.width; // Clear previous QR code
+            console.log(`Generating QR code with version: ${version}`);
             generateQRCode(link, version);
         });
 
@@ -94,6 +95,7 @@
             setTimeout(() => {
                 const qrData = qr._oQRCode.modules;
                 const tileSize = qrCanvas.width / qrData.length;
+                console.log(`QR code size: ${qrData.length}x${qrData.length}`);
                 for (let row = 0; row < qrData.length; row++) {
                     for (let col = 0; col < qrData.length; col++) {
                         ctx.fillStyle = qrData[row][col] ? '#000' : '#fff';
