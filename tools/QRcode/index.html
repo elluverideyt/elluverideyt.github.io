@@ -87,7 +87,7 @@
             qr.addData(text);
             qr.make();
 
-            const qrData = qr.modules;
+            const qrData = qr.modules || qr.qrcode.modules;
             const tileSize = qrCanvas.width / qrData.length;
             console.log(`QR code size: ${qrData.length}x${qrData.length}`);
             console.log(`Expected size for version ${version}: ${21 + (version - 1) * 4}x${21 + (version - 1) * 4}`);
