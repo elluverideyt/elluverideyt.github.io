@@ -54,7 +54,7 @@
         </select>
         <button type="submit">Generate QR Code</button>
     </form>
-    <canvas id="qrCanvas" width="800" height="800"></canvas>
+    <canvas id="qrCanvas" width="256" height="256"></canvas>
     <div id="explanation">Enter a link and click "Generate QR Code"</div>
 
     <script>
@@ -64,17 +64,6 @@
         const qrCanvas = document.getElementById('qrCanvas');
         const ctx = qrCanvas.getContext('2d');
         const explanation = document.getElementById('explanation');
-
-        const coordinates = [
-            { x: 0, y: 0 },
-            { x: 200, y: 0 },
-            { x: 400, y: 0 },
-            { x: 600, y: 0 },
-            { x: 0, y: 200 },
-            { x: 200, y: 200 },
-            { x: 400, y: 200 },
-            { x: 600, y: 200 }
-        ];
 
         form.addEventListener('submit', function (event) {
             event.preventDefault();
@@ -87,31 +76,22 @@
                 return;
             }
 
-            ctx.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
-
-            coordinates.forEach((coord, index) => {
-                if (index + 1 <= version) {
-                    generateQRCode(link, index + 1, coord.x, coord.y);
-                }
-            });
-
-            explanation.textContent = 'QR Codes generated successfully!';
-        });
-
-        function generateQRCode(data, version, offsetX, offsetY) {
             const qr = qrcode(version, 'L');
-            qr.addData(data);
+            qr.addData(link);
             qr.make();
 
-            const tileSize = qrCanvas.width / 8 / qr.getModuleCount();
+            const tileSize = qrCanvas.width / qr.getModuleCount();
+            ctx.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
 
             for (let row = 0; row < qr.getModuleCount(); row++) {
                 for (let col = 0; col < qr.getModuleCount(); col++) {
                     ctx.fillStyle = qr.isDark(row, col) ? '#000000' : '#ffffff';
-                    ctx.fillRect(offsetX + col * tileSize, offsetY + row * tileSize, tileSize, tileSize);
+                    ctx.fillRect(col * tileSize, row * tileSize, tileSize, tileSize);
                 }
             }
-        }
+
+            explanation.textContent = 'QR Code generated successfully!';
+        });
     </script>
 </body>
 </html>
