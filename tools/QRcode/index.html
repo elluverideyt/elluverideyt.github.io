@@ -43,7 +43,7 @@
         <input type="text" id="linkInput" placeholder="Enter a link" required>
         <select id="versionSelect">
             <option value="" disabled selected>Select QR Code Version</option>
-            <option value="1">Version 1 (21x21)</option>
+            <option value="1">Version 1 (20x20)</option>
             <option value="2">Version 2 (25x25)</option>
             <option value="3">Version 3 (29x29)</option>
             <option value="5">Version 5 (37x37)</option>
@@ -127,14 +127,14 @@
         const coordinates = {
             1: [
                 ...generateSpiralCoordinates(0, 0, 6, 6),
-                ...generateSpiralCoordinates(0, 15, 6, 21),
-                ...generateSpiralCoordinates(15, 0, 21, 6),
+                ...generateSpiralCoordinates(0, 14, 6, 20),
+                ...generateSpiralCoordinates(14, 0, 20, 6),
                 ...generateLineCoordinates(6, 7, 6, 20),
                 ...generateLineCoordinates(7, 6, 20, 6),
-                ...generateRemainingCoordinates(21, 21, 20, 20, [
+                ...generateRemainingCoordinates(20, 20, 20, 20, [
                     ...generateSpiralCoordinates(0, 0, 6, 6),
-                    ...generateSpiralCoordinates(0, 15, 6, 21),
-                    ...generateSpiralCoordinates(15, 0, 21, 6),
+                    ...generateSpiralCoordinates(0, 14, 6, 20),
+                    ...generateSpiralCoordinates(14, 0, 20, 6),
                     ...generateLineCoordinates(6, 7, 6, 20),
                     ...generateLineCoordinates(7, 6, 20, 6)
                 ])
