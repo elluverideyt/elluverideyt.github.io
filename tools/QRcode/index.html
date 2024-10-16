@@ -40,7 +40,7 @@
             font-size: 16px;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.min.js"></script>
 </head>
 
 <body>
@@ -85,30 +85,25 @@
         });
 
         function generateQRCode(text, version) {
-            const qr = new QRCode(document.createElement('div'), {
-                text: text,
-                width: 256,
-                height: 256,
-                version: version
-            });
+            const qr = qrcode(version, 'L');
+            qr.addData(text);
+            qr.make();
 
-            setTimeout(() => {
-                const qrData = qr._oQRCode.modules;
-                const tileSize = qrCanvas.width / qrData.length;
-                console.log(`QR code size: ${qrData.length}x${qrData.length}`);
-                console.log(`Expected size for version ${version}: ${21 + (version - 1) * 4}x${21 + (version - 1) * 4}`);
-                if (qrData.length !== 21 + (version - 1) * 4) {
-                    explanation.textContent = `Error: Generated QR code size (${qrData.length}x${qrData.length}) does not match expected size for version ${version}.`;
-                    return;
+            const qrData = qr.modules;
+            const tileSize = qrCanvas.width / qrData.length;
+            console.log(`QR code size: ${qrData.length}x${qrData.length}`);
+            console.log(`Expected size for version ${version}: ${21 + (version - 1) * 4}x${21 + (version - 1) * 4}`);
+            if (qrData.length !== 21 + (version - 1) * 4) {
+                explanation.textContent = `Error: Generated QR code size (${qrData.length}x${qrData.length}) does not match expected size for version ${version}.`;
+                return;
+            }
+            for (let row = 0; row < qrData.length; row++) {
+                for (let col = 0; col < qrData.length; col++) {
+                    ctx.fillStyle = qrData[row][col] ? '#000' : '#fff';
+                    ctx.fillRect(col * tileSize, row * tileSize, tileSize, tileSize);
                 }
-                for (let row = 0; row < qrData.length; row++) {
-                    for (let col = 0; col < qrData.length; col++) {
-                        ctx.fillStyle = qrData[row][col] ? '#000' : '#fff';
-                        ctx.fillRect(col * tileSize, row * tileSize, tileSize, tileSize);
-                    }
-                }
-                explanation.textContent = 'QR code generation complete!';
-            }, 0);
+            }
+            explanation.textContent = 'QR code generation complete!';
         }
     </script>
 </body>
