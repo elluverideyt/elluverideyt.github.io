@@ -1,0 +1,300 @@
+<html>
+	<head>
+		<script src="script.js"></script>
+		<style>
+			#container {position:relative;}
+			#back, #fore {position:absolute; top:0; left: 0}
+			canvas {
+				border: solid black 1px;
+			}
+			#buttonContainer {
+				-webkit-user-select: none;  
+				-moz-user-select: none;    
+				-ms-user-select: none;      
+				user-select: none;
+			}
+			.button{
+				float: left;
+				width: 50px;
+				border: solid black 1px;
+				background-color: lightgray;
+				cursor: pointer;
+				text-align: center;
+				margin-right: 2px;
+			}
+			textarea{
+				width:500px;
+				height:300px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="main">
+			<canvas></canvas>
+			<div id="buttonContainer">
+				<div id="butUndo" class="button">Undo</div>
+				<div id="butRedo" class="button">Redo</div>
+				<div id="butShowJson" class="button">Show JSON</div>
+			</div>
+		</div>
+		<div id="copyJson" style="display:none">
+			<textarea></textarea>
+			<div>
+				<button id="butCloseJson">Close</button>
+				<!--<button id="butLoadJson">Load</button>-->
+			</div>
+		</div>
+		<script>
+			// modes:
+			// - nothing
+			// - dragging main point
+			// - dragging control point
+			// - adding new point (keeping control points alligned)
+			// - adding new point (keeping first control point fixed)
+			const pointRadius = 3;
+			const canvasWidth = 400, canvasHeight = 400;
+			const MD_NOTHING = 0,
+				MD_ADDING_ALIGN = 1,
+				MD_ADDING_FIX = 2,
+				MD_DRAGGING = 3
+			var mode = MD_NOTHING;
+			$(function(){
+				var points = [];
+				var $c = $("canvas");
+				var selectedPointIndex = -1;
+				var draggingFrom, draggingStart;
+				var undoActions = [];
+				var redoActions = [];
+				var draggingFrom;
+				var pointsBeingDragged;
+
+				$c.attr("width", canvasWidth)
+					.attr("height", canvasHeight);
+
+				var ctx = $c.get(0).getContext("2d");
+
+				$c.mousemove(function(event){
+					switch (mode)
+					{
+						case MD_ADDING_ALIGN:
+							points[selectedPointIndex].ctl2 = {x: event.offsetX, y: event.offsetY};
+							if (!event.altKey)
+							{
+								points[selectedPointIndex].ctl1 = {x: 2 * points[selectedPointIndex].main.x - points[selectedPointIndex].ctl2.x,
+									y: 2 * points[selectedPointIndex].main.y - points[selectedPointIndex].ctl2.y};
+							}
+							reDraw();
+						break;
+						case MD_DRAGGING:
+							var deltaX = event.offsetX - draggingFrom.x,
+								deltaY = event.offsetY - draggingFrom.y;
+							for (var i = 0; i < pointsBeingDragged.length; i++)
+							{
+								pointsBeingDragged[i].x += deltaX;
+								pointsBeingDragged[i].y += deltaY;
+							}
+							draggingFrom = {x: event.offsetX, y: event.offsetY};
+							reDraw();
+						break;
+					}
+				});
+				$c.mousedown(function(event){
+					switch (mode)
+					{
+						case MD_NOTHING:
+							$.each(points, function(index, p) {
+								if (Math.abs(p.main.x - event.offsetX) <= pointRadius &&
+									Math.abs(p.main.y - event.offsetY) <= pointRadius)
+								{
+									mode = MD_DRAGGING;
+									selectedPointIndex = index;
+									draggingFrom = {x: event.offsetX, y: event.offsetY};
+									draggingStart = {x: event.offsetX, y: event.offsetY};
+									pointsBeingDragged = [
+										points[selectedPointIndex].main,
+										points[selectedPointIndex].ctl1,
+										points[selectedPointIndex].ctl2
+									];
+									return false;
+								}
+							});
+							if (mode != MD_NOTHING)
+								break;
+							if (selectedPointIndex >= 0)
+							{
+								var p = points[selectedPointIndex];
+								if (Math.abs(p.ctl1.x - event.offsetX) <= pointRadius &&
+									Math.abs(p.ctl1.y - event.offsetY) <= pointRadius)
+								{
+									mode = MD_DRAGGING;
+									draggingFrom = {x: event.offsetX, y: event.offsetY};
+									draggingStart = {x: event.offsetX, y: event.offsetY};
+									pointsBeingDragged = [
+										p.ctl1
+									];
+									break;
+								}
+								else if (Math.abs(p.ctl2.x - event.offsetX) <= pointRadius &&
+									Math.abs(p.ctl2.y - event.offsetY) <= pointRadius)
+								{
+									mode = MD_DRAGGING;
+									draggingFrom = {x: event.offsetX, y: event.offsetY};
+									draggingStart = {x: event.offsetX, y: event.offsetY};
+									pointsBeingDragged = [
+										p.ctl2
+									];
+									break;
+								}
+							}
+							points.splice(selectedPointIndex + 1, 0, {
+											main: {x: event.offsetX, y: event.offsetY},
+											ctl1: {x: event.offsetX, y: event.offsetY},
+											ctl2: {x: event.offsetX, y: event.offsetY}
+										});
+							selectedPointIndex = selectedPointIndex + 1;
+							mode = MD_ADDING_ALIGN;
+							reDraw();
+						break;
+					}
+				})
+				.mouseup(function(event){
+					console.log(mode);
+					switch (mode)
+					{
+						case MD_ADDING_ALIGN:
+							mode = MD_NOTHING;
+							reDraw();
+							undoActions.push({
+								type: "addPoint",
+								pointIndex: selectedPointIndex,
+								pointData: $.extend({}, points[selectedPointIndex])
+							});
+							redoActions = [];
+						break;
+						case MD_DRAGGING:
+							mode = MD_NOTHING;
+							reDraw();
+							undoActions.push({
+								type: "dragPoint", 
+								points: pointsBeingDragged, 
+								deltaX: event.offsetX - draggingStart.x,
+								deltaY: event.offsetY - draggingStart.y
+							});
+							redoActions = [];
+						break;
+					}
+				});
+
+				$("#butUndo").click(function ()
+				{
+					if (undoActions.length)
+					{
+						var action = undoActions[undoActions.length - 1];
+						undoActions.splice(undoActions.length - 1, 1);
+						if (action.type == 'dragPoint')
+						{
+							for (var i = 0; i < action.points.length; i++)
+							{
+								action.points[i].x -= action.deltaX;
+							 	action.points[i].y -= action.deltaY;
+							}
+							//selectedPointIndex = action.pointIndex;
+						}
+						else if (action.type == "addPoint")
+						{
+							points.splice(action.pointIndex, 1);
+							selectedPointIndex = action.pointIndex - 1;// TODO: check for edge cases
+						}
+						reDraw();
+						redoActions.push(action);
+					}
+				});
+				$("#butRedo").click(function ()
+				{
+					if (redoActions.length)
+					{
+						var action = redoActions[redoActions.length - 1];
+						redoActions.splice(redoActions.length - 1, 1);
+						if (action.type == 'dragPoint')
+						{
+							for (var i = 0; i < action.points.length; i++)
+							{
+								action.points[i].x += action.deltaX;
+							 	action.points[i].y += action.deltaY;
+							}
+							//selectedPointIndex = action.pointIndex;
+						}
+						else if (action.type == "addPoint")
+						{
+							points.splice(action.pointIndex, 0, $.extend({}, action.pointData));
+							selectedPointIndex = action.pointIndex;// TODO: check for edge cases
+						}
+						reDraw();
+						undoActions.push(action);
+					}
+				});
+				$("body").keydown(function(event){
+					if (event.which == 90 && (event.metaKey || event.ctrlKey))
+					{
+						event.preventDefault();
+						$('#butUndo').click();
+						event.stopPropagation();
+					}
+					else if (event.which == 89 && (event.metaKey || event.ctrlKey))
+					{
+						event.preventDefault();
+						$('#butRedo').click();
+						event.stopPropagation();
+					}
+				});
+				function reDraw()
+				{
+					ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+					if (points.length > 1)
+					{
+						ctx.beginPath();
+						var previousPoint = null;
+						$.each(points, function(index, p){
+							if (previousPoint == null)
+								ctx.moveTo(p.main.x, p.main.y);
+							else
+							{
+								ctx.bezierCurveTo(previousPoint.ctl2.x, previousPoint.ctl2.y,
+									p.ctl1.x, p.ctl1.y,
+									p.main.x, p.main.y);
+							}
+							previousPoint = p;
+						});
+						ctx.stroke();
+					}
+					$.each(points, function(index, p){
+						ctx.beginPath();
+						ctx.ellipse(p.main.x, p.main.y, pointRadius, pointRadius, 0, 0, 2 * Math.PI);
+						ctx.fill();
+						if (index == selectedPointIndex)
+						{
+							ctx.beginPath();
+							ctx.ellipse(p.ctl1.x, p.ctl1.y, pointRadius, pointRadius, 0, 0, 2 * Math.PI);
+							ctx.stroke();
+							ctx.beginPath();
+							ctx.ellipse(p.ctl2.x, p.ctl2.y, pointRadius, pointRadius, 0, 0, 2 * Math.PI);
+							ctx.stroke();
+						}
+					});
+				}
+
+				$("#butCloseJson").click(function(){
+					$("#copyJson").hide();
+					$("#main").show();
+				});
+
+
+				$("#butShowJson").click(function(){
+					$("textarea").val(JSON.stringify(points));
+					$("#main").hide();
+					$("#copyJson").show();
+				});
+			});
+		</script>
+	</body>
+</html>
