@@ -1,32 +1,7 @@
 <html>
 	<head>
 		<script src="script.js"></script>
-		<style>
-			#container {position:relative;}
-			#back, #fore {position:absolute; top:0; left: 0}
-			canvas {
-				border: solid black 1px;
-			}
-			#buttonContainer {
-				-webkit-user-select: none;  
-				-moz-user-select: none;    
-				-ms-user-select: none;      
-				user-select: none;
-			}
-			.button{
-				float: left;
-				width: 50px;
-				border: solid black 1px;
-				background-color: lightgray;
-				cursor: pointer;
-				text-align: center;
-				margin-right: 2px;
-			}
-			textarea{
-				width:500px;
-				height:300px;
-			}
-		</style>
+        <link rel="stylesheet" href="styles.css">
 	</head>
 	<body>
 		<div id="main">
@@ -35,22 +10,16 @@
 				<div id="butUndo" class="button">Undo</div>
 				<div id="butRedo" class="button">Redo</div>
 				<div id="butShowJson" class="button">Show JSON</div>
+				<div id="butReset" class="button">Reset</div>
 			</div>
 		</div>
 		<div id="copyJson" style="display:none">
 			<textarea></textarea>
 			<div>
 				<button id="butCloseJson">Close</button>
-				<!--<button id="butLoadJson">Load</button>-->
 			</div>
 		</div>
 		<script>
-			// modes:
-			// - nothing
-			// - dragging main point
-			// - dragging control point
-			// - adding new point (keeping control points alligned)
-			// - adding new point (keeping first control point fixed)
 			const pointRadius = 3;
 			const canvasWidth = 400, canvasHeight = 400;
 			const MD_NOTHING = 0,
@@ -233,6 +202,13 @@
 						undoActions.push(action);
 					}
 				});
+				$("#butReset").click(function() {
+					points = [];
+					selectedPointIndex = -1;
+					undoActions = [];
+					redoActions = [];
+					reDraw();
+				});
 				$("body").keydown(function(event){
 					if (event.which == 90 && (event.metaKey || event.ctrlKey))
 					{
@@ -265,19 +241,23 @@
 							}
 							previousPoint = p;
 						});
+						ctx.strokeStyle = "#ffffff";
 						ctx.stroke();
 					}
 					$.each(points, function(index, p){
 						ctx.beginPath();
 						ctx.ellipse(p.main.x, p.main.y, pointRadius, pointRadius, 0, 0, 2 * Math.PI);
+						ctx.fillStyle = "#ffffff";
 						ctx.fill();
 						if (index == selectedPointIndex)
 						{
 							ctx.beginPath();
 							ctx.ellipse(p.ctl1.x, p.ctl1.y, pointRadius, pointRadius, 0, 0, 2 * Math.PI);
+							ctx.strokeStyle = "#ffffff";
 							ctx.stroke();
 							ctx.beginPath();
 							ctx.ellipse(p.ctl2.x, p.ctl2.y, pointRadius, pointRadius, 0, 0, 2 * Math.PI);
+							ctx.strokeStyle = "#ffffff";
 							ctx.stroke();
 						}
 					});
