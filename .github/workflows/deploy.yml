@@ -23,7 +23,3 @@ jobs:
 
       - name: Build the Project
         run: npm run build
-
-      # Add a step to create a .nojekyll file in the docs folder
-      - name: Create .nojekyll File
-        run: touch docs/.nojekyll
