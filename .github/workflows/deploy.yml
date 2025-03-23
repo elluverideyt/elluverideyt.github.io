@@ -16,10 +16,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  # Use Node 18 to support structuredClone
+          node-version: '18'
 
       - name: Install Dependencies
         run: npm install
 
       - name: Build the Project
         run: npm run build
+
+      # Add a step to create a .nojekyll file in the docs folder
+      - name: Create .nojekyll File
+        run: touch docs/.nojekyll
