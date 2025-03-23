@@ -32,11 +32,12 @@ jobs:
       - name: Copy Build Files to Root
         run: cp -r docs/* .
 
-      # Commit and push the built files to the main branch
       - name: Commit and Push Build
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           git commit -m "Deploy built site [skip ci]" || echo "No changes to commit"
-          git push
+          git push https://$DEPLOY_TOKEN@github.com/elluverideyt/elluverideyt.github.io.git HEAD:main
