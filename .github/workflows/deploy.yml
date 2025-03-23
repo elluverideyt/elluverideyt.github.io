@@ -23,3 +23,20 @@ jobs:
 
       - name: Build the Project
         run: npm run build
+
+      # Create a .nojekyll file to disable Jekyll processing on GitHub Pages
+      - name: Create .nojekyll File
+        run: touch docs/.nojekyll
+
+      # Copy all build files from docs/ to the repository root
+      - name: Copy Build Files to Root
+        run: cp -r docs/* .
+
+      # Commit and push the built files to the main branch
+      - name: Commit and Push Build
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Deploy built site [skip ci]" || echo "No changes to commit"
+          git push
