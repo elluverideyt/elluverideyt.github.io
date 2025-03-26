@@ -32,12 +32,17 @@ jobs:
       - name: Copy Build Files to Root
         run: cp -r docs/* .
 
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
       - name: Commit and Push Build
-        env:
-          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: |
           git config user.name "qwertyhnbvdtyhcfgyu"
           git config user.email "ttdtdtd035@gmail.com"
           git add .
           git commit -m "Deploy built site [skip ci]" || echo "No changes to commit"
-          git push https://$DEPLOY_TOKEN@github.com/elluverideyt/elluverideyt.github.io.git HEAD:main
+          git push git@github.com:elluverideyt/elluverideyt.github.io.git HEAD:main
