@@ -124,7 +124,7 @@ export const stateReducer = (state, action) => {
           ? ["Configure", "Scout", "Review", "ScanData"]
           : state.scoutingType === "qualitative"
           ? ["Configure", "Qualitative", "ScanData"]
-          : ["you messed up"];
+          : ["you fucked up"];
       return {
         ...pushHistory(state),
         mode: modes[(modes.indexOf(state.mode) + 1) % modes.length],

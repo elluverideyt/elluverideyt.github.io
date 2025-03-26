@@ -12,15 +12,18 @@ const roles = [
   { value: "blue1", label: "Blue 1" },
   { value: "blue2", label: "Blue 2" },
   { value: "blue3", label: "Blue 3" },
+  { value: "blueQualitative", label: "Blue Qualitative" },
   { value: "red1", label: "Red 1" },
   { value: "red2", label: "Red 2" },
   { value: "red3", label: "Red 3" },
+  { value: "redQualitative", label: "Red Qualitative" },
 ];
 
 const matchLevels = [
   { value: "practice", label: "Practice" },
   { value: "qualification", label: "Qualification" },
-  { value: "tournament", label: "Tournament" },
+  { value: "semifinals", label: "Semifinals" },
+  { value: "finals", label: "Finals" },
 ];
 
 const reviewToggles = [
@@ -33,7 +36,7 @@ const googleAPIConstants = {
     "https://script.google.com/macros/s/AKfycbxj9pjLFR1K_3bG3mgi50MYmYha7iH2D8bIUcsHXfz8l8Kq1_h8o3KikmPb6JDyFEgv3Q/exec",
 };
 
-const enableMemes = false; // whether or not to enable the 'silly' features
+const enableMemes = true; // whether or not to enable the 'silly' features
 
 const editViewSections = [
   {
@@ -57,6 +60,7 @@ const editViewSections = [
         ],
       },
       { key: "scouterName", label: "Scouter Name", type: "text" },
+      { key: "scouterID", label: "Scouter ID", type: "number" },
       { key: "role", label: "Role", type: "dropdown", options: roles },
       {
         key: "alliance",
