@@ -9,7 +9,7 @@ export default defineConfig({
       registerType: "prompt",
     }),
   ],
-  base: "/elluverideyt.github.io/", // Replace with your repository name
+  base: "/", // Replace with your repository name
   build: {
     outDir: "dist", // Output directory
   },
